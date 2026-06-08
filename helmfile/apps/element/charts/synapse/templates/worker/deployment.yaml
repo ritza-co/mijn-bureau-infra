@@ -26,9 +26,11 @@ spec:
       app.kubernetes.io/component: {{ $fullname }}
   template:
     metadata:
-      {{- if ($config.podAnnotations | default $default.podAnnotations) }}
-      annotations: {{- include "common.tplvalues.render" (dict "value" ($config.podAnnotations | default $default.podAnnotations) "context" $) | nindent 8 }}
-      {{- end }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configMap.yaml") . | sha256sum }}
+        {{- if ($config.podAnnotations | default $default.podAnnotations) }}
+        {{- include "common.tplvalues.render" (dict "value" ($config.podAnnotations | default $default.podAnnotations) "context" $) | nindent 8 }}
+        {{- end }}
       labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
         app.kubernetes.io/component: {{ $fullname }}
     spec:
