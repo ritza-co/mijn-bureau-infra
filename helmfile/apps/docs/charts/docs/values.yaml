@@ -2376,9 +2376,13 @@ yProvider:
     ##
     type: ClusterIP
     ## @param yProvider.service.ports.http Impress y-provider service HTTP port
+    ## NOTE: must match yProvider.containerPorts.http (the y-provider serves plain
+    ## HTTP). Do not use 443 here: ingress controllers such as Traefik infer an
+    ## HTTPS backend from service port 443 and then fail the upstream TLS handshake
+    ## ("tls: first record does not look like a TLS handshake").
     ##
     ports:
-      http: 443
+      http: 4444
     ## Node ports to expose
     ## @param yProvider.service.nodePorts.http Node port for HTTP
     ## NOTE: choose port between <30000-32767>
