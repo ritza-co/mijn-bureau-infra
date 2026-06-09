@@ -72,7 +72,12 @@ collabora:
   server_name: {{ .Values.global.hostname.collabora | default "collabora" }}.{{ .Values.global.domain | default "example.com"  }}
 
   # Extra parameters passed to the Collabora start command; in this case, disables SSL inside the container
-  extra_params: --o:ssl.enable=false --o:ssl.termination=true --o:storage.wopi.alias_groups.mode=groups --o:storage.wopi.alias_groups.group[0].host=https://{{ .Values.global.hostname.nextcloud | default "nextcloud" }}.{{ .Values.global.domain | default "example.com"  }} --o:storage.wopi.alias_groups.group[1].host=https://{{ .Values.global.hostname.drive | default "drive" }}.{{ .Values.global.domain | default "example.com"  }}"
+  # NOTE: the alias-group host is matched (anchored) by coolwsd against the WOPISrc
+  # Nextcloud sends, which can include an explicit ":443" — so the host pattern must
+  # tolerate an optional port, hence the trailing "(:443)?". (Without it coolwsd
+  # rejects the callback with "Unauthorized WOPI host".) Also note there must be NO
+  # stray trailing quote at the end of this value.
+  extra_params: --o:ssl.enable=false --o:ssl.termination=true --o:storage.wopi.alias_groups.mode=groups --o:storage.wopi.alias_groups.group[0].host=https://{{ .Values.global.hostname.nextcloud | default "nextcloud" }}.{{ .Values.global.domain | default "example.com"  }}(:443)? --o:storage.wopi.alias_groups.group[1].host=https://{{ .Values.global.hostname.drive | default "drive" }}.{{ .Values.global.domain | default "example.com"  }}(:443)?
 
   # When true, enables OpenShift-specific initContainer workaround.
   enableInsecureCoolWSD : {{ .Values.application.collabora.enableInsecureCoolWSD  | quote }}
