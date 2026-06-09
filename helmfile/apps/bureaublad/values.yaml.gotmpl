@@ -46,6 +46,17 @@ backend:
       - ports:
           - port: 443
             protocol: TCP
+      # Redis connectivity (backend session store)
+      - ports:
+          - port: {{ .Values.cache.bureaublad.port }}
+            protocol: TCP
+        {{- if .Values.cache.bureaublad.isInternal }}
+        to:
+          - podSelector:
+              matchLabels:
+                app.kubernetes.io/name: redis
+                app.kubernetes.io/component: master
+        {{- end }}
       {{- if .Values.ai.llm.endpoint.isInternal }}
       # AI connectivity
       - ports:
